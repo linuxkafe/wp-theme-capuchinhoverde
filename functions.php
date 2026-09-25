@@ -82,3 +82,16 @@ function cg_block_query_posts($query){
     // Not a hard block, but ensure developers use WP_Query
 }
 add_action('pre_get_posts','cg_block_query_posts');
+
+/**
+ * Custom Post Types
+ */
+require get_template_directory() . '/inc/post-types.php';
+
+/**
+ * Register block patterns
+ */
+function cg_register_patterns() {
+    register_block_pattern_category('capuchinhoverde', ['label' => esc_html__('Capuchinho Verde','capuchinhoverde')]);
+}
+add_action('init','cg_register_patterns');
