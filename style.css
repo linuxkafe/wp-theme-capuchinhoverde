@@ -1,0 +1,35 @@
+/*
+Theme Name: Capuchinho Verde
+Theme URI: https://example.com/capuchinhoverde
+Description: Modern port of Cafeteria theme – fully block editor compatible, PHP 8.2+, WordPress 6.5+. Responsive, accessibility ready, Gutenberg first.
+Version: 1.0.0
+Author: Capuchinho Verde Team
+Author URI: https://example.com
+Requires at least: 6.0
+Tested up to: 6.6
+Requires PHP: 7.4
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: capuchinhoverde
+Tags: blog, custom-colors, custom-header, custom-menu, editor-style, featured-images, full-width-template, one-column, responsive-layout, rtl-language-support, translation-ready, woocommerce
+*/
+
+:root {
+  --cg-bg: #0a0a0a;
+  --cg-surface: #171717;
+  --cg-border: #262626;
+  --cg-text: #fafafa;
+  --cg-muted: #737373;
+  --cg-accent: #22c55e;
+  --cg-destructive: #ef4444;
+}
+
+body {
+  background: var(--cg-bg);
+  color: var(--cg-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+a { color: var(--cg-accent); }
+.entry-title { font-weight: 700; }
