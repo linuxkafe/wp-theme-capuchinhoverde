@@ -1,17 +1,17 @@
 /*
 Theme Name: Capuchinho Verde
-Theme URI: https://example.com/capuchinhoverde
-Description: Modern port of Cafeteria theme – fully block editor compatible, PHP 8.2+, WordPress 6.5+. Responsive, accessibility ready, Gutenberg first.
+Theme URI: https://github.com/seyon/capuchinhoverde
+Description: Capuchinho Verde WordPress Food Delivery Theme – block-first architecture, PHP 8.2+, WordPress 6.5+, theme.json v2, CSS custom properties, native Gutenberg support. Legacy ALETheme compatibility layer for Cafeteria v1.7 parity (slider, services, gallery filter Isotope, team, menu/price, events, dual-header menus, mobile drawer, contact form, Google Maps, social icons). Zero jQuery dependency in core; legacy assets enqueued conditionally.
 Version: 1.0.0
 Author: Capuchinho Verde Team
-Author URI: https://example.com
+Author URI: https://github.com/seyon
 Requires at least: 6.0
 Tested up to: 6.6
-Requires PHP: 7.4
+Requires PHP: 8.2
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: capuchinhoverde
-Tags: blog, custom-colors, custom-header, custom-menu, editor-style, featured-images, full-width-template, one-column, responsive-layout, rtl-language-support, translation-ready, woocommerce
+Tags: food-delivery, restaurant, cafe, block-theme, theme-json, editor-styles, align-wide, custom-logo, post-formats, rtl-language-support, translation-ready, woocommerce
 */
 
 :root {
