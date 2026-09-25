@@ -77,6 +77,3 @@
     global $post;
     ale_part('innerheaders');
 } ?>
-
-<div id="page" class="site">
-<main id="primary" class="site-main">

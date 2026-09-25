@@ -2,82 +2,95 @@
 /**
  * Cafeteria Footer Template
  */
-
-if (ale_get_meta('footerbg')) {
-    echo '<section class="footer nokeyframebug" style="background-image: url('.ale_get_meta('footerbg').');">';
-} else {
-    echo '<section class="footer nokeyframebug">';
-}
 ?>
-    <a name="success" href="#success"></a>
-    <div class="maskkeyframebug">
-        <div class="center-align">
-            <a href="#top" class="top"></a>
 
-            <h2 class="firstfont caption"><?php _e('Contacte a Capuchinho','aletheme'); ?></h2>
+<?php if(is_page_template('page-home.php') or is_page_template('template-contact.php')){ ?>
+    <section class="footer nokeyframebug" style="<?php if(ale_get_meta('contactbg')){ echo 'background-image:url('.ale_get_meta('contactbg').');'; } if(ale_get_option('formcontact') == '1'){echo 'height:540px;';} ?>" >
+        <a name="success" href="#success"></a>
+        <div class="maskkeyframebug">
+            <div class="center-align">
+                <a href="#top" class="top"></a>
 
-            <div class="contacts cf">
-                <div class="col-4">
-                    <ul>
-                        <li>
-                            <div class="icon-adress"></div>
-                            <p><?php echo ale_get_meta('footeraddress'); ?></p>
-                        </li>
-                        <li>
-                            <div class="icon-phone"></div>
-                            <p><?php echo ale_get_meta('footerphone'); ?></p>
-                        </li>
-                        <li>
-                            <div class="icon-mail"></div>
-                            <p><?php echo ale_get_meta('footeremail'); ?></p>
-                        </li>
-                    </ul>
+                <h2 class="firstfont caption"> <?php echo ale_get_meta('contacttit'); ?></h2>
+                <?php if(ale_get_option('formcontact') !== '1'){ ?>
+                <?php } ?>
+                <div class="contacts cf">
+                    <div class="col-4">
+                        <ul>
+                            <li>
+                                <div class="icon-adress"></div>
+                                <p><?php _e('Address','aletheme'); ?> // <?php echo ale_get_meta('contactaddress'); ?></p>
+                            </li>
+                            <li>
+                                <div class="icon-phone"></div>
+                                <p><?php _e('Telephone nr.','aletheme'); ?> //  <?php echo ale_get_meta('contactphone'); ?></p>
+                            </li>
+                            <li>
+                                <div class="icon-mail"></div>
+                                <p><?php _e('E-Mail','aletheme'); ?> //  <?php echo ale_get_meta('contactemail'); ?></p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-8"><?php echo str_replace('&','&',ale_get_meta('contactmap')); ?></div>
                 </div>
 
-                <div class="col-8">
-                    <?php if (ale_get_meta('footergoogle')) { ?>
-                        <iframe src="<?php echo ale_get_meta('footergoogle'); ?>" width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
-                    <?php } else { ?>
-                        <p><?php _e('Mapa não configurado.','aletheme'); ?></p>
-                    <?php } ?>
+                <?php if (ale_get_option('copyrights')) : ?>
+                    <p class="copy"><?php echo ale_get_option('copyrights'); ?></p>
+                <?php else: ?>
+                    <p class="copy"><?php _e('Copyright, All Right Reserved','aletheme'); ?></p>
+                <?php endif; ?>
+
+                <div class="social_icons">
+                    <?php if(ale_get_option('fb')){ ?><a href="<?php echo ale_get_option('fb'); ?>" class="sicon fbic" target="_blank">Facebook</a><?php } ?>
+                    <?php if(ale_get_option('twi')){ ?><a href="<?php echo ale_get_option('twi'); ?>" class="sicon twiic" target="_blank">Twitter</a><?php } ?>
+                    <?php if(ale_get_option('pin')){ ?><a href="<?php echo ale_get_option('pin'); ?>" class="sicon pinic" target="_blank">Pinterest</a><?php } ?>
+                    <?php if(ale_get_option('flickr')){ ?><a href="<?php echo ale_get_option('flickr'); ?>" class="sicon flickric" target="_blank">Flickr</a><?php } ?>
+                    <?php if(ale_get_option('vim')){ ?><a href="<?php echo ale_get_option('vim'); ?>" class="sicon vimic" target="_blank">Vimeo</a><?php } ?>
+                    <?php if(ale_get_option('lin')){ ?><a href="<?php echo ale_get_option('lin'); ?>" class="sicon linic" target="_blank">LinkedIn</a><?php } ?>
+                    <?php if(ale_get_option('gog')){ ?><a href="<?php echo ale_get_option('gog'); ?>" class="sicon gogic" target="_blank">Google+</a><?php } ?>
+                    <?php if(ale_get_option('ytb')){ ?><a href="<?php echo ale_get_option('ytb'); ?>" class="sicon ytbic" target="_blank">Youtube</a><?php } ?>
+                    <?php if(ale_get_option('insta')){ ?><a href="<?php echo ale_get_option('insta'); ?>" class="sicon instaic" target="_blank">Instagram</a><?php } ?>
                 </div>
             </div>
 
-            <?php if (ale_get_meta('footerform') == 'on') { ?>
-                <form action="#success" method="post" class="cf">
-                    <div class="col-4">
-                        <input type="text" name="contact[name]" placeholder="<?php _e('Nome','aletheme'); ?>" required="required" />
-                    </div>
-                    <div class="col-4">
-                        <input type="email" name="contact[email]" placeholder="<?php _e('Email','aletheme'); ?>" required="required" />
-                    </div>
-                    <div class="col-4">
-                        <input type="tel" name="contact[phone]" placeholder="<?php _e('Telefone','aletheme'); ?>" />
-                    </div>
-                    <div class="col-8">
-                        <textarea name="contact[message]" placeholder="<?php _e('Mensagem','aletheme'); ?>" required="required"></textarea>
-                    </div>
-                    <div class="col-8">
-                        <input type="submit" name="contact" value="<?php _e('Enviar','aletheme'); ?>" />
-                    </div>
-                </form>
-            <?php } ?>
+            <div class="inner-border" style="<?php if(ale_get_option('formcontact') == '1'){echo 'height:529px;';} ?>"></div>
+            <div class="background-opacity"></div>
+        </div>
+    </section>
+    <?php if(ale_get_option('preloaderstatus')!=='1'){ ?></div> <!-- /hide --><?php } ?>
+<?php } else { ?>
+    <section class="footer footer-small">
+        <div class="center-align">
 
-            <p class="copy"><?php echo ale_get_meta('footercopyright'); ?></p>
+            <?php if (ale_get_option('copyrights')) : ?>
+                <p class="copy"><?php echo ale_get_option('copyrights'); ?></p>
+            <?php else: ?>
+                <p class="copy"><?php _e('Copyright, All Right Reserved','aletheme'); ?></p>
+            <?php endif; ?>
 
             <div class="social_icons">
-                <?php if (ale_get_meta('footerfacebook')) { ?>
-                    <a href="<?php echo ale_get_meta('footerfacebook'); ?>" class="sicon fbic" target="_blank"><?php _e('Facebook','aletheme'); ?></a>
-                <?php } ?>
-                <?php if (ale_get_meta('footerinstagram')) { ?>
-                    <a href="<?php echo ale_get_meta('footerinstagram'); ?>" class="sicon instaic" target="_blank"><?php _e('Instagram','aletheme'); ?></a>
-                <?php } ?>
+                <?php if(ale_get_option('fb')){ ?><a href="<?php echo ale_get_option('fb'); ?>" class="sicon fbic" target="_blank">Facebook</a><?php } ?>
+                <?php if(ale_get_option('twi')){ ?><a href="<?php echo ale_get_option('twi'); ?>" class="sicon twiic" target="_blank">Twitter</a><?php } ?>
+                <?php if(ale_get_option('pin')){ ?><a href="<?php echo ale_get_option('pin'); ?>" class="sicon pinic" target="_blank">Pinterest</a><?php } ?>
+                <?php if(ale_get_option('flickr')){ ?><a href="<?php echo ale_get_option('flickr'); ?>" class="sicon flickric" target="_blank">Flickr</a><?php } ?>
+                <?php if(ale_get_option('vim')){ ?><a href="<?php echo ale_get_option('vim'); ?>" class="sicon vimic" target="_blank">Vimeo</a><?php } ?>
+                <?php if(ale_get_option('lin')){ ?><a href="<?php echo ale_get_option('lin'); ?>" class="sicon linic" target="_blank">LinkedIn</a><?php } ?>
+                <?php if(ale_get_option('gog')){ ?><a href="<?php echo ale_get_option('gog'); ?>" class="sicon gogic" target="_blank">Google+</a><?php } ?>
+                <?php if(ale_get_option('ytb')){ ?><a href="<?php echo ale_get_option('ytb'); ?>" class="sicon ytbic" target="_blank">Youtube</a><?php } ?>
+                <?php if(ale_get_option('insta')){ ?><a href="<?php echo ale_get_option('insta'); ?>" class="sicon instaic" target="_blank">Instagram</a><?php } ?>
             </div>
         </div>
 
+        <!-- ## ## ## ## ## ## ## ## ## ## -->
         <div class="inner-border"></div>
         <div class="background-opacity"></div>
-    </div>
-</section>
+    </section>
+<?php } ?>
 
+<?php if(ale_get_option('skinselector') == "1") { ale_part('colorselector'); } ?>
+
+<!-- Scripts -->
 <?php wp_footer(); ?>
+</body>
+</html>

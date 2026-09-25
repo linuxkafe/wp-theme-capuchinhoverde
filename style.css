@@ -24,12 +24,10 @@ Tags: food-delivery, restaurant, cafe, block-theme, theme-json, editor-styles, a
   --cg-destructive: #ef4444;
 }
 
-body {
-  background: var(--cg-bg);
-  color: var(--cg-text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.6;
-}
-
+/* Minimal base - legacy CSS handles visual design */
+body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
 a { color: var(--cg-accent); }
 .entry-title { font-weight: 700; }
+
+/* Gutenberg editor support */
+.editor-styles-wrapper { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
