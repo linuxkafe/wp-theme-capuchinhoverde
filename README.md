@@ -75,9 +75,17 @@ Stubs for legacy functions so existing content/theme options work without the AL
 
 ### From GitHub (Recommended)
 
+**Option A — wget + unzip (no git required, fastest):**
+
+```bash
+bash -c 'set -euo pipefail; TMP=$(mktemp -d); wget -qO "$TMP/theme.zip" https://github.com/linuxkafe/wp-theme-capuchinhoverde/archive/refs/heads/main.zip; unzip -q "$TMP/theme.zip" -d "$TMP"; mv "$TMP/wp-theme-capuchinhoverde-main" /var/www/html/wp-content/themes/capuchinhoverde; rm -rf "$TMP"; echo "Theme installed at /var/www/html/wp-content/themes/capuchinhoverde"'
+```
+
+**Option B — git clone (full history):**
+
 ```bash
 # Clone the repository and extract the theme
-git clone --depth=1 --branch main https://github.com/seyon/capuchinhoverde.git /tmp/capuchinhoverde \
+git clone --depth=1 --branch main https://github.com/linuxkafe/wp-theme-capuchinhoverde.git /tmp/capuchinhoverde \
   && cd /tmp/capuchinhoverde \
   && rm -rf .git .github tests node_modules playwright.config.ts package*.json docs README.md \
   && zip -r ../capuchinhoverde-theme.zip . \
@@ -86,10 +94,10 @@ git clone --depth=1 --branch main https://github.com/seyon/capuchinhoverde.git /
   && rm -rf /tmp/capuchinhoverde capuchinhoverde-theme.zip
 ```
 
-**One-liner for production deployment:**
+**One-liner for production deployment (git):**
 
 ```bash
-bash -c 'set -euo pipefail; TMP=$(mktemp -d); git clone --depth=1 --branch main https://github.com/seyon/capuchinhoverde.git "$TMP"; cd "$TMP"; rm -rf .git .github tests node_modules playwright.config.ts package*.json docs README.md; zip -r ../capuchinhoverde-theme.zip .; cd ..; unzip -o capuchinhoverde-theme.zip -d /var/www/html/wp-content/themes/capuchinhoverde; rm -rf "$TMP" capuchinhoverde-theme.zip; echo "Theme installed at /var/www/html/wp-content/themes/capuchinhoverde"'
+bash -c 'set -euo pipefail; TMP=$(mktemp -d); git clone --depth=1 --branch main https://github.com/linuxkafe/wp-theme-capuchinhoverde.git "$TMP"; cd "$TMP"; rm -rf .git .github tests node_modules playwright.config.ts package*.json docs README.md; zip -r ../capuchinhoverde-theme.zip .; cd ..; unzip -o capuchinhoverde-theme.zip -d /var/www/html/wp-content/themes/capuchinhoverde; rm -rf "$TMP" capuchinhoverde-theme.zip; echo "Theme installed at /var/www/html/wp-content/themes/capuchinhoverde"'
 ```
 
 > Adjust the destination path (`/var/www/html/wp-content/themes/`) to match your WordPress installation.
