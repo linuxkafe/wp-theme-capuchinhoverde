@@ -1,0 +1,31 @@
+# AES
+aes/metrics/
+aes/verification/*/
+!aes/verification/.gitkeep
+!aes/handoffs/.gitkeep
+.bypass-audit.log
+
+# node / playwright
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+*.tsbuildinfo
+
+# php
+vendor/
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# local WordPress environment (docker compose volumes live here)
+wp-data/
+.test-status
+.test-log
