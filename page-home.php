@@ -55,7 +55,34 @@ $cg_slider = ale_sliders_get_slider( ale_get_option( 'homeslugfull', 'home' ) );
 <h1 class="cg-visually-hidden"><?php echo esc_html( get_the_title() ); ?></h1>
 
 <!-- Gallery / Slider -->
-<div class="slider cf" id="cg-slider">
+<?php
+$cg_slider_settings = isset( $cg_slider['settings'] ) ? (array) $cg_slider['settings'] : [];
+/*
+ * Per-slider effect settings, handed to assets/js/slider-init.js which merges them into the
+ * options the vendored InitHome.js passes to FlexSlider. They go out as data-* attributes
+ * rather than inline JS, and are esc_attr'd because they cross into a JS context. An
+ * unset yes/no setting is omitted entirely, so the shim leaves the vendored default alone
+ * instead of overwriting it with a falsey value.
+ */
+?>
+<div class="slider cf" id="cg-slider"
+    <?php
+    foreach ( [
+        'animation'  => 'cg-animation',
+        'slideshow'  => 'cg-slideshow',
+        'controlnav' => 'cg-controlnav',
+        'randomize'  => 'cg-randomize',
+    ] as $cg_key => $cg_attr ) {
+        if ( isset( $cg_slider_settings[ $cg_key ] ) && '' !== $cg_slider_settings[ $cg_key ] ) {
+            printf( ' data-%s="%s"', esc_attr( $cg_attr ), esc_attr( $cg_slider_settings[ $cg_key ] ) );
+        }
+    }
+    $cg_slider_w = isset( $cg_slider_settings['width'] ) ? (int) $cg_slider_settings['width'] : 0;
+    $cg_slider_h = isset( $cg_slider_settings['height'] ) ? (int) $cg_slider_settings['height'] : 0;
+    if ( $cg_slider_w > 0 && $cg_slider_h > 0 ) {
+        printf( ' style="--cg-slider-w:%dpx;--cg-slider-h:%dpx;"', (int) $cg_slider_w, (int) $cg_slider_h );
+    }
+    ?>>
     <div class="triang top"></div>
     <div class="triang bot"></div>
     <ul class="slides">
@@ -63,6 +90,19 @@ $cg_slider = ale_sliders_get_slider( ale_get_option( 'homeslugfull', 'home' ) );
             <?php foreach ( $cg_slider['slides'] as $cg_slide ) : ?>
                 <?php $cg_image = ! empty( $cg_slide['image'] ) ? esc_url( $cg_slide['image'] ) : ''; ?>
                 <li<?php echo $cg_image ? ' style="background-image: url(\'' . esc_attr( $cg_image ) . '\');"' : ''; ?>>
+                    <?php if ( ! empty( $cg_slide['html'] ) ) : ?>
+                        <?php
+                        /*
+                         * Slide custom HTML (source: post_excerpt, rendered raw at
+                         * sliders.php:357). It is filtered on the way IN by
+                         * cg_sanitize_meta_json() via wp_kses_post, so anything reaching here
+                         * is already limited to what a post may contain. wp_kses_post is the
+                         * last gate; without it a row written directly with wp-cli would be
+                         * echoed unfiltered.
+                         */
+                        echo wp_kses_post( $cg_slide['html'] );
+                        ?>
+                    <?php else : ?>
                     <div class="box">
                         <?php if ( ! empty( $cg_slide['title'] ) ) : ?>
                             <h2 class="firstfont caption colormain"><?php echo esc_html( $cg_slide['title'] ); ?></h2>
@@ -74,6 +114,7 @@ $cg_slider = ale_sliders_get_slider( ale_get_option( 'homeslugfull', 'home' ) );
                             <a href="<?php echo esc_url( $cg_slide['url'] ); ?>"><?php esc_html_e( 'Read More', 'capuchinhoverde' ); ?></a>
                         <?php endif; ?>
                     </div>
+                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         <?php else : ?>
@@ -94,7 +135,7 @@ $cg_slider = ale_sliders_get_slider( ale_get_option( 'homeslugfull', 'home' ) );
             <h2 class="firstfont caption colormain"><?php echo esc_html( ale_get_meta( 'servtit' ) ); ?></h2>
             <div class="center-align">
                 <div class="line-cake">
-                    <div class="cake"></div>
+                    <div class="cake"<?php echo cg_cake_style(); ?>></div>
                     <div class="line left"></div>
                     <div class="line right"></div>
                 </div>

@@ -1,0 +1,106 @@
+/*
+ * Repeater UI styles for the theme's metabox repeaters (see cg_render_repeater()).
+ * aes/tickets/T018.
+ *
+ * Scoped entirely under .cg-repeater so nothing leaks into the block editor or the rest of
+ * wp-admin. Deliberately minimal and neutral: it should read as part of wp-admin rather
+ * than as a second design system, and it must stay legible in the admin's high-contrast
+ * mode, so no colour here is load-bearing — only spacing, borders and weight.
+ */
+
+.cg-repeater {
+  margin: 0 0 1em;
+}
+
+.cg-repeater-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cg-repeater-row {
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.cg-repeater-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #f6f7f7;
+  border-bottom: 1px solid #c3c4c7;
+}
+
+.cg-repeater-handle {
+  color: #8c8f94;
+  cursor: move;
+  letter-spacing: -2px;
+}
+
+.cg-repeater-row-label {
+  font-weight: 600;
+}
+
+.cg-repeater-row-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.cg-repeater-row-tools .button-link {
+  text-decoration: none;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.cg-repeater-row-tools .cg-repeater-remove {
+  color: #b32d2e;
+}
+
+.cg-repeater-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+/* The image row spans both columns: its button sits next to the URL field. */
+.cg-repeater-field--image {
+  grid-column: 1 / -1;
+}
+
+.cg-repeater-field--textarea {
+  grid-column: 1 / -1;
+}
+
+.cg-repeater-field > span {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.cg-repeater-image {
+  display: flex;
+  gap: 6px;
+}
+
+.cg-repeater-image .cg-repeater-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cg-repeater-input {
+  width: 100%;
+}
+
+.cg-repeater-actions {
+  margin: 8px 0 0;
+}
+
+@media screen and (max-width: 782px) {
+  .cg-repeater-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

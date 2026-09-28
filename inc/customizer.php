@@ -45,6 +45,39 @@ function cg_option_schema() {
         'preloaderstatus'   => ['label' => __('Enable the preloader', 'capuchinhoverde'),    'type' => 'checkbox',  'group' => 'features'],
         'langswitcher'      => ['label' => __('Enable the language switcher', 'capuchinhoverde'), 'type' => 'checkbox', 'group' => 'features'],
         'skinselector'      => ['label' => __('Enable the skin selector', 'capuchinhoverde'), 'type' => 'checkbox', 'group' => 'features'],
+
+        // Colour scheme. The source declared this (ale_colscheme) and enqueued
+        // css/colors/schemeN.css; our port shipped the six scheme stylesheets and a
+        // JavaScript selector that swaps them at runtime, but never declared a default, so
+        // scheme1.css was never actually loaded and .colormain had no colour behind it.
+        // aes/tickets/T018 (G5).
+        'colscheme'         => [
+            'label'       => __('Colour scheme', 'capuchinhoverde'),
+            'type'        => 'select',
+            'group'       => 'features',
+            'choices'     => [
+                '1' => __('Scheme 1', 'capuchinhoverde'),
+                '2' => __('Scheme 2', 'capuchinhoverde'),
+                '3' => __('Scheme 3', 'capuchinhoverde'),
+                '4' => __('Scheme 4', 'capuchinhoverde'),
+                '5' => __('Scheme 5', 'capuchinhoverde'),
+                '6' => __('Scheme 6', 'capuchinhoverde'),
+            ],
+            'default'     => '1',
+            'description' => __('Default colour scheme. The skin selector, if enabled, overrides it for the current visitor.', 'capuchinhoverde'),
+        ],
+
+        // The decorative cake in the .line-cake section dividers. The source had two
+        // (customcake1/2); customcake2 targeted `.story-open .right .content .line-cake`,
+        // and no template in this port renders a line-cake inside single.php, so only
+        // customcake1 is declared rather than shipping a control that does nothing.
+        // aes/tickets/T018 (G6).
+        'customcake1'       => [
+            'label'       => __('Section divider image', 'capuchinhoverde'),
+            'type'        => 'url',
+            'group'       => 'features',
+            'description' => __('Image used for the cake in the section dividers.', 'capuchinhoverde'),
+        ],
         'formcontact'       => ['label' => __('Enable the contact form', 'capuchinhoverde'), 'type' => 'checkbox',  'group' => 'features'],
         'ajax_posts'        => ['label' => __('Enable AJAX post loading', 'capuchinhoverde'), 'type' => 'checkbox',  'group' => 'features'],
         'ajax_open_single'  => ['label' => __('Enable AJAX single post loading', 'capuchinhoverde'), 'type' => 'checkbox', 'group' => 'features'],
@@ -80,7 +113,7 @@ function cg_option_groups() {
     ];
 }
 
-function cg_option_sanitize($value, $type) {
+function cg_option_sanitize($value, $type, $field = []) {
     switch ($type) {
         case 'url':
             return esc_url_raw(trim((string) $value), ['http', 'https', 'mailto', 'tel']);
@@ -90,6 +123,15 @@ function cg_option_sanitize($value, $type) {
         case 'checkbox':
             return $value ? '1' : '';
         case 'select':
+            $value = sanitize_text_field((string) $value);
+            // A select must only ever hold one of its own choices. Without this the control
+            // is a free-text box (see the control renderer below) and any string is
+            // accepted, which for something like the colour scheme would end up building a
+            // stylesheet path out of user input.
+            if (!empty($field['choices'])) {
+                return array_key_exists($value, $field['choices']) ? $value : (string) key($field['choices']);
+            }
+            return $value;
         case 'text':
         default:
             return sanitize_text_field((string) $value);
@@ -147,7 +189,7 @@ function cg_customize_register($wp_customize) {
         $wp_customize->add_setting($key, [
             'default'           => '',
             'sanitize_callback' => static function ($value) use ($type) {
-                return cg_option_sanitize($value, $type);
+                return cg_option_sanitize($value, $type, $field);
             },
             'transport'         => 'refresh',
         ]);
@@ -162,6 +204,12 @@ function cg_customize_register($wp_customize) {
         }
         if ('url' === $type) {
             $control['type'] = 'url';
+        }
+        // A select with declared choices becomes a real dropdown. Without choices it stays
+        // a text box, which is what `homeslugfull` (a slug) needs.
+        if ('select' === $type && !empty($field['choices'])) {
+            $control['type']    = 'select';
+            $control['choices'] = $field['choices'];
         }
 
         $wp_customize->add_control($key, $control);

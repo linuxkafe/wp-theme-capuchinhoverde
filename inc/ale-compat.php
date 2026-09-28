@@ -107,11 +107,36 @@ if (!function_exists('ale_sliders_get_slider')) {
             $slides = [];
         }
 
+        /*
+         * Per-slider effect settings (aes/tickets/T018 G2/G4). The source stored these on
+         * the slider; without them our vendored InitHome.js was hard-coded to
+         * `animation: "fade", controlNav: false`. Defaults match what InitHome.js passes,
+         * so an unset slider behaves exactly as it did before this ticket.
+         */
+        $animation = (string) get_post_meta( $slider_post->ID, '_cg_slider_animation', true );
+        $settings  = [
+            'animation'  => in_array( $animation, [ 'fade', 'slide' ], true ) ? $animation : 'fade',
+            'slideshow'  => get_post_meta( $slider_post->ID, '_cg_slider_slideshow', true ),
+            'controlnav' => get_post_meta( $slider_post->ID, '_cg_slider_controlnav', true ),
+            'randomize'  => get_post_meta( $slider_post->ID, '_cg_slider_randomize', true ),
+            'width'      => (string) get_post_meta( $slider_post->ID, '_cg_slider_width', true ),
+            'height'     => (string) get_post_meta( $slider_post->ID, '_cg_slider_height', true ),
+        ];
+        // An empty yes/no setting means "never chosen", which must stay distinct from "0".
+        // The shim in assets/js/slider-init.js only overrides a setting it finds, so an
+        // absent value leaves the vendored default alone instead of forcing it falsey.
+        foreach ( [ 'slideshow', 'controlnav', 'randomize' ] as $cg_flag ) {
+            if ( '' === $settings[ $cg_flag ] ) {
+                unset( $settings[ $cg_flag ] );
+            }
+        }
+
         return [
-            'id'     => $slider_post->ID,
-            'title'  => $slider_post->post_title,
-            'slug'   => $slider_post->post_name,
-            'slides' => $slides,
+            'id'       => $slider_post->ID,
+            'title'    => $slider_post->post_title,
+            'slug'     => $slider_post->post_name,
+            'slides'   => $slides,
+            'settings' => $settings,
         ];
     }
 }
@@ -227,5 +252,34 @@ if (!function_exists('ale_send_contact')) {
         }
 
         return $result;
+    }
+}
+
+if (!function_exists('cg_cake_style')) {
+    /**
+     * Inline background for the decorative cake in a .line-cake section divider.
+     *
+     * The source applied this from the generated css-option.php block
+     * (`article .line-cake .cake { background: url(...) }`). That file was never ported
+     * (T016), so the option existed nowhere and the cake was always the bare CSS default.
+     * Emitting the style inline on the element itself gives the same result without
+     * depending on a generated stylesheet, and keeps the rule next to the markup.
+     *
+     * Only customcake1 is honoured. The source's customcake2 targeted
+     * `.story-open .right .content .line-cake .cake`, and no template in this port renders a
+     * line-cake inside single.php, so a second control would have had nothing to affect.
+     *
+     * @return string Escaped inline style, or '' when no image is configured.
+     */
+    function cg_cake_style() {
+        $image = (string) ale_get_option( 'customcake1' );
+        if ( '' === $image ) {
+            return '';
+        }
+        $url = esc_url( $image, [ 'http', 'https' ] );
+        if ( '' === $url ) {
+            return '';
+        }
+        return ' style="background-image:url(' . esc_attr( $url ) . ');background-repeat:no-repeat;background-position:center;"';
     }
 }

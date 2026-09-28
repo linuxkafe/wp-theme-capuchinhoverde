@@ -46,6 +46,23 @@ function cg_scripts() {
     wp_enqueue_style('cafeteria-main', get_template_directory_uri().'/assets/css/legacy/main.css', ['cafeteria-general'], '1.7');
     wp_enqueue_style('cafeteria-responsive', get_template_directory_uri().'/assets/css/legacy/responsive.css', ['cafeteria-main'], '1.7');
 
+    /*
+     * Colour scheme (aes/tickets/T018 G5). The six scheme stylesheets were vendored and the
+     * runtime skin selector could swap them, but no default was ever declared, so
+     * scheme1.css was never in <head> and .colormain had no colour behind it. The value is
+     * already constrained to 1-6 by cg_option_sanitize(), and is cast to an int here
+     * before being used to build a path.
+     */
+    $cg_scheme = (int) ale_get_option( 'colscheme', 1 );
+    if ( $cg_scheme >= 1 && $cg_scheme <= 6 ) {
+        wp_enqueue_style(
+            'cafeteria-scheme',
+            get_template_directory_uri() . '/assets/css/legacy/css/colors/scheme' . $cg_scheme . '.css',
+            [ 'cafeteria-responsive' ],
+            '1.7'
+        );
+    }
+
     wp_enqueue_script('capuchinhoverde-nav', get_template_directory_uri().'/assets/js/nav.js', [], _CG_VERSION, true);
 
     // Legacy JS from Cafeteria theme. File names are `modules.js` and `scripts.js`;
@@ -77,7 +94,12 @@ function cg_scripts() {
 
     // Per-page initialisers, matching the source theme's own Init*.js split.
     if (is_front_page()) {
-        wp_enqueue_script('init-home', get_template_directory_uri().'/assets/js/legacy/InitHome.js', ['jquery', 'ale-scripts', 'isotope'], '1.7', true);
+        // cg-slider-settings wraps $.fn.flexslider BEFORE the vendored InitHome.js runs, so
+        // the per-slider animation/controlNav/slideshow/randomize values can be applied
+        // without editing that vendored file. It is a dependency of init-home, not a
+        // separate enqueue, so WordPress guarantees the order. See aes/tickets/T018.
+        wp_enqueue_script('cg-slider-settings', get_template_directory_uri().'/assets/js/slider-init.js', ['jquery', 'ale-scripts'], _CG_VERSION, true);
+        wp_enqueue_script('init-home', get_template_directory_uri().'/assets/js/legacy/InitHome.js', ['jquery', 'ale-scripts', 'isotope', 'cg-slider-settings'], '1.7', true);
     }
     if (is_page_template('page-home.php') || is_singular('cg_menu')) {
         wp_enqueue_script('init-menu', get_template_directory_uri().'/assets/js/legacy/InitOpenMenu.js', ['jquery', 'ale-scripts'], '1.7', true);
@@ -95,6 +117,38 @@ function cg_scripts() {
     }
 }
 add_action('wp_enqueue_scripts','cg_scripts');
+
+/**
+ * Editor assets for the cg_slider screen: the repeater UI.
+ *
+ * Admin-only, so it never reaches a visitor. wp_enqueue_media is required for the
+ * wp.media image picker inside the repeater, and is only requested on this one screen.
+ * Vanilla JS — see CLAUDE.md's jQuery rule. aes/tickets/T018.
+ */
+function cg_admin_scripts( $hook ) {
+    if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ], true ) ) {
+        return;
+    }
+    $screen = get_current_screen();
+    if ( ! $screen || 'cg_slider' !== $screen->post_type ) {
+        return;
+    }
+    wp_enqueue_media();
+    wp_enqueue_style(
+        'cg-admin-repeater',
+        get_template_directory_uri() . '/assets/css/admin-repeater.css',
+        [],
+        _CG_VERSION
+    );
+    wp_enqueue_script(
+        'cg-admin-repeater',
+        get_template_directory_uri() . '/assets/js/admin-repeater.js',
+        [],
+        _CG_VERSION,
+        true
+    );
+}
+add_action( 'admin_enqueue_scripts', 'cg_admin_scripts' );
 
 /**
  * Editor styles.

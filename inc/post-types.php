@@ -81,6 +81,14 @@ function cg_register_post_types() {
         'show_ui' => true,
         'show_in_menu' => true,
         'menu_icon' => 'dashicons-images-alt2',
+        // Matches cg_menu, cg_gallery and cg_event. Without this the slider is the only CPT
+        // that falls back to the classic editor, which contradicts the rationale in
+        // inc/meta.php: register_post_meta() only gives the block editor and the REST API
+        // access to the _cg_ keys if the post type is in REST. The block editor is also
+        // where the slide repeater (T018) is meant to be used. Found by running the slider
+        // E2E tests — they all failed on a missing .editor-post-publish-button, which is
+        // the block editor's control; the classic editor's is #publish.
+        'show_in_rest' => true,
         'supports' => ['title'],
         'rewrite' => false,
         'capability_type' => 'post',

@@ -58,7 +58,7 @@ get_header();
                 <h2 class="firstfont caption colormain"><?php echo esc_html($cg_team_title); ?></h2>
                 <div class="center-align">
                     <div class="line-cake">
-                        <div class="cake"></div>
+                        <div class="cake"<?php echo cg_cake_style(); ?>></div>
                         <div class="line left"></div>
                         <div class="line right"></div>
                     </div>
