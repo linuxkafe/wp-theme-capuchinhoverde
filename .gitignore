@@ -1,8 +1,8 @@
-# AES
-aes/metrics/
-aes/verification/*/
-!aes/verification/.gitkeep
-!aes/handoffs/.gitkeep
+# AES — local engineering scaffolding, not part of the theme.
+# Both trees are untracked on purpose: aes/ holds tickets, kanban and peer reviews, and
+# .aes/ holds the hook sources. See the note in CLAUDE.md about what a fresh clone loses.
+.aes/
+aes/
 .bypass-audit.log
 
 # node / playwright
