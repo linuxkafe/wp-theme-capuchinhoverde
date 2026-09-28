@@ -5,13 +5,17 @@
 ?>
 
 <?php if(is_page_template('page-home.php') or is_page_template('template-contact.php')){ ?>
-    <section class="footer nokeyframebug" style="<?php if(ale_get_meta('contactbg')){ echo 'background-image:url('.ale_get_meta('contactbg').');'; } if(ale_get_option('formcontact') == '1'){echo 'height:540px;';} ?>" >
+    <section class="footer nokeyframebug" style="<?php
+        $cg_fg_bg = ale_get_meta('contactbg');
+        if ($cg_fg_bg) { echo 'background-image:url(' . esc_url($cg_fg_bg) . ');'; }
+        if (ale_get_option('formcontact') == '1') { echo 'height:540px;'; }
+    ?>" >
         <a name="success" href="#success"></a>
         <div class="maskkeyframebug">
             <div class="center-align">
                 <a href="#top" class="top"></a>
 
-                <h2 class="firstfont caption"> <?php echo ale_get_meta('contacttit'); ?></h2>
+                <h2 class="firstfont caption"> <?php echo esc_html( ale_get_meta('contacttit') ); ?></h2>
                 <?php if(ale_get_option('formcontact') !== '1'){ ?>
                 <?php } ?>
                 <div class="contacts cf">
@@ -19,38 +23,60 @@
                         <ul>
                             <li>
                                 <div class="icon-adress"></div>
-                                <p><?php _e('Address','aletheme'); ?> // <?php echo ale_get_meta('contactaddress'); ?></p>
+                                <p><?php esc_html_e( 'Address', 'capuchinhoverde' ); ?> // <?php echo esc_html( ale_get_meta('contactaddress') ); ?></p>
                             </li>
                             <li>
                                 <div class="icon-phone"></div>
-                                <p><?php _e('Telephone nr.','aletheme'); ?> //  <?php echo ale_get_meta('contactphone'); ?></p>
+                                <p><?php esc_html_e( 'Telephone nr.', 'capuchinhoverde' ); ?> //  <?php echo esc_html( ale_get_meta('contactphone') ); ?></p>
                             </li>
                             <li>
                                 <div class="icon-mail"></div>
-                                <p><?php _e('E-Mail','aletheme'); ?> //  <?php echo ale_get_meta('contactemail'); ?></p>
+                                <p><?php esc_html_e( 'E-Mail', 'capuchinhoverde' ); ?> //  <?php echo esc_html( ale_get_meta('contactemail') ); ?></p>
                             </li>
                         </ul>
                     </div>
 
-                    <div class="col-8"><?php echo str_replace('&','&',ale_get_meta('contactmap')); ?></div>
+                    <div class="col-8">
+                            <?php
+                            /*
+                             * The source echoed the map meta raw, wrapped in a no-op
+                             * str_replace('&','&'). Any author-supplied value was therefore
+                             * written into the page as markup. It now goes through the same
+                             * host-allowlisted, sandboxed embed as template-contact.php — the
+                             * behaviour is defined once, in cg_map_embed_url().
+                             */
+                            cg_render_map_embed( ale_get_meta('contactmap') );
+                            ?>
+                        </div>
                 </div>
 
                 <?php if (ale_get_option('copyrights')) : ?>
-                    <p class="copy"><?php echo ale_get_option('copyrights'); ?></p>
+                    <p class="copy"><?php echo esc_html( ale_get_option('copyrights') ); ?></p>
                 <?php else: ?>
-                    <p class="copy"><?php _e('Copyright, All Right Reserved','aletheme'); ?></p>
+                    <p class="copy"><?php esc_html_e( 'Copyright, All Right Reserved', 'capuchinhoverde' ); ?></p>
                 <?php endif; ?>
 
                 <div class="social_icons">
-                    <?php if(ale_get_option('fb')){ ?><a href="<?php echo ale_get_option('fb'); ?>" class="sicon fbic" target="_blank">Facebook</a><?php } ?>
-                    <?php if(ale_get_option('twi')){ ?><a href="<?php echo ale_get_option('twi'); ?>" class="sicon twiic" target="_blank">Twitter</a><?php } ?>
-                    <?php if(ale_get_option('pin')){ ?><a href="<?php echo ale_get_option('pin'); ?>" class="sicon pinic" target="_blank">Pinterest</a><?php } ?>
-                    <?php if(ale_get_option('flickr')){ ?><a href="<?php echo ale_get_option('flickr'); ?>" class="sicon flickric" target="_blank">Flickr</a><?php } ?>
-                    <?php if(ale_get_option('vim')){ ?><a href="<?php echo ale_get_option('vim'); ?>" class="sicon vimic" target="_blank">Vimeo</a><?php } ?>
-                    <?php if(ale_get_option('lin')){ ?><a href="<?php echo ale_get_option('lin'); ?>" class="sicon linic" target="_blank">LinkedIn</a><?php } ?>
-                    <?php if(ale_get_option('gog')){ ?><a href="<?php echo ale_get_option('gog'); ?>" class="sicon gogic" target="_blank">Google+</a><?php } ?>
-                    <?php if(ale_get_option('ytb')){ ?><a href="<?php echo ale_get_option('ytb'); ?>" class="sicon ytbic" target="_blank">Youtube</a><?php } ?>
-                    <?php if(ale_get_option('insta')){ ?><a href="<?php echo ale_get_option('insta'); ?>" class="sicon instaic" target="_blank">Instagram</a><?php } ?>
+                    <?php
+                    /*
+                     * Social links: every URL is escaped and every target="_blank" carries
+                     * rel="noopener noreferrer". The source emitted all nine raw with a bare
+                     * target="_blank", so a Customizer value of "javascript:alert(1)" became
+                     * a live link.
+                     */
+                    foreach (cg_social_links() as $cg_network => $cg_meta_key) {
+                        $cg_url = ale_get_option($cg_meta_key);
+                        if (!$cg_url) {
+                            continue;
+                        }
+                        printf(
+                            '<a href="%s" class="sicon %sic" target="_blank" rel="noopener noreferrer">%s</a>',
+                            esc_url($cg_url, ['http', 'https']),
+                            esc_attr($cg_network),
+                            esc_html(cg_social_label($cg_network))
+                        );
+                    }
+                    ?>
                 </div>
             </div>
 
@@ -64,21 +90,26 @@
         <div class="center-align">
 
             <?php if (ale_get_option('copyrights')) : ?>
-                <p class="copy"><?php echo ale_get_option('copyrights'); ?></p>
+                <p class="copy"><?php echo esc_html( ale_get_option('copyrights') ); ?></p>
             <?php else: ?>
-                <p class="copy"><?php _e('Copyright, All Right Reserved','aletheme'); ?></p>
+                <p class="copy"><?php esc_html_e( 'Copyright, All Right Reserved', 'capuchinhoverde' ); ?></p>
             <?php endif; ?>
 
             <div class="social_icons">
-                <?php if(ale_get_option('fb')){ ?><a href="<?php echo ale_get_option('fb'); ?>" class="sicon fbic" target="_blank">Facebook</a><?php } ?>
-                <?php if(ale_get_option('twi')){ ?><a href="<?php echo ale_get_option('twi'); ?>" class="sicon twiic" target="_blank">Twitter</a><?php } ?>
-                <?php if(ale_get_option('pin')){ ?><a href="<?php echo ale_get_option('pin'); ?>" class="sicon pinic" target="_blank">Pinterest</a><?php } ?>
-                <?php if(ale_get_option('flickr')){ ?><a href="<?php echo ale_get_option('flickr'); ?>" class="sicon flickric" target="_blank">Flickr</a><?php } ?>
-                <?php if(ale_get_option('vim')){ ?><a href="<?php echo ale_get_option('vim'); ?>" class="sicon vimic" target="_blank">Vimeo</a><?php } ?>
-                <?php if(ale_get_option('lin')){ ?><a href="<?php echo ale_get_option('lin'); ?>" class="sicon linic" target="_blank">LinkedIn</a><?php } ?>
-                <?php if(ale_get_option('gog')){ ?><a href="<?php echo ale_get_option('gog'); ?>" class="sicon gogic" target="_blank">Google+</a><?php } ?>
-                <?php if(ale_get_option('ytb')){ ?><a href="<?php echo ale_get_option('ytb'); ?>" class="sicon ytbic" target="_blank">Youtube</a><?php } ?>
-                <?php if(ale_get_option('insta')){ ?><a href="<?php echo ale_get_option('insta'); ?>" class="sicon instaic" target="_blank">Instagram</a><?php } ?>
+                <?php
+                foreach (cg_social_links() as $cg_network => $cg_meta_key) {
+                    $cg_url = ale_get_option($cg_meta_key);
+                    if (!$cg_url) {
+                        continue;
+                    }
+                    printf(
+                        '<a href="%s" class="sicon %sic" target="_blank" rel="noopener noreferrer">%s</a>',
+                        esc_url($cg_url, ['http', 'https']),
+                        esc_attr($cg_network),
+                        esc_html(cg_social_label($cg_network))
+                    );
+                }
+                ?>
             </div>
         </div>
 
