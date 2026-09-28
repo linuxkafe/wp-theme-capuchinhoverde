@@ -272,45 +272,52 @@ test.describe("T015 — B4 / T018 — slides saved through the UI must render", 
 
     // Drive the real UI. A wp-cli write would pass against exactly the writer/reader
     // mismatch this test exists to catch.
-    const before_add = await box.locator(".cg-repeater-row").count();
-    await addSlide(page, REPEATER_TITLE, "added by the repeater");
-    await expect(box.locator(".cg-repeater-row")).toHaveCount(before_add + 1);
+    //
+    // Everything from here to the home-page assertion is wrapped in try/finally, and that
+    // is not decoration. A previous version restored inline at the END of the body, so any
+    // failure before that line left its probe slide saved in the database — which is how
+    // four "T018 repeater slide ..." rows ended up rendering on the live home page. A failed
+    // or flaky run is exactly when you least want it to also corrupt the fixture.
+    try {
+      const before_add = await box.locator(".cg-repeater-row").count();
+      await addSlide(page, REPEATER_TITLE, "added by the repeater");
+      await expect(box.locator(".cg-repeater-row")).toHaveCount(before_add + 1);
 
-    // The hidden input is the only thing the save path sees, and it must already carry the
-    // new slide before Save is ever clicked.
-    const staged = JSON.parse(
-      await box.locator("input.cg-repeater-json").inputValue(),
-    );
-    expect(
-      staged,
-      "the repeater did not serialise into its hidden input",
-    ).toHaveLength(before_add + 1);
-    expect(staged[staged.length - 1].title).toBe(REPEATER_TITLE);
+      // The hidden input is the only thing the save path sees, and it must already carry
+      // the new slide before Save is ever clicked.
+      const staged = JSON.parse(
+        await box.locator("input.cg-repeater-json").inputValue(),
+      );
+      expect(
+        staged,
+        "the repeater did not serialise into its hidden input",
+      ).toHaveLength(before_add + 1);
+      expect(staged[staged.length - 1].title).toBe(REPEATER_TITLE);
 
-    await save(page);
+      await save(page);
 
-    // Round trip.
-    await openSliderEditor(page, postId);
-    await expect(
-      page
-        .locator("#cg-theme-options")
-        .locator(`input[value="${REPEATER_TITLE}"]`),
-      "the slide did not survive the editor round trip",
-    ).toHaveCount(1);
+      // Round trip.
+      await openSliderEditor(page, postId);
+      await expect(
+        page
+          .locator("#cg-theme-options")
+          .locator(`input[value="${REPEATER_TITLE}"]`),
+        "the slide did not survive the editor round trip",
+      ).toHaveCount(1);
 
-    await page.goto("/");
-    await expect(
-      page.locator(".slider .slides h2.caption.colormain", {
-        hasText: REPEATER_TITLE,
-      }),
-      "the slide added through the repeater is not on the home page",
-    ).toHaveCount(1);
-
-    // Restore.
-    await login(page);
-    await openSliderEditor(page, postId);
-    await restoreRows(page, original);
-    await save(page);
+      await page.goto("/");
+      await expect(
+        page.locator(".slider .slides h2.caption.colormain", {
+          hasText: REPEATER_TITLE,
+        }),
+        "the slide added through the repeater is not on the home page",
+      ).toHaveCount(1);
+    } finally {
+      await login(page);
+      await openSliderEditor(page, postId);
+      await restoreRows(page, original);
+      await save(page);
+    }
   });
 });
 
@@ -476,40 +483,47 @@ test.describe("T018 — slider effect settings", () => {
     const postId = await findSliderId(page);
     await openSliderEditor(page, postId);
 
-    const { json: originalJson, added } = await ensureTwoSlides(page);
+    // try/finally from BEFORE ensureTwoSlides, because that helper may itself save an
+    // added slide — leaking it if a later step failed was the defect this guards against.
+    let originalJson = "";
+    let added = false;
+    let original = "";
+    try {
+      ({ json: originalJson, added } = await ensureTwoSlides(page));
 
-    const select = page
-      .locator("#cg-theme-options")
-      .locator('select[name="cg_meta[slider_animation]"]');
-    const original = await select.inputValue();
-    await select.selectOption("slide");
-    await save(page);
+      const select = page
+        .locator("#cg-theme-options")
+        .locator('select[name="cg_meta[slider_animation]"]');
+      original = await select.inputValue();
+      await select.selectOption("slide");
+      await save(page);
 
-    await page.goto("/");
-    const slide = await sliderGeometry(page);
-    expect(slide, "the slider is missing from the home page").not.toBeNull();
-    expect(slide!.published, "the template did not publish the setting").toBe(
-      "slide",
-    );
-    expect(
-      slide!.slidesStyle,
-      "animation=slide did not take effect: .slides has no inline geometry, so the vendored fade is still in force",
-    ).toMatch(/width:\s*\d+%/);
-    expect(slide!.slidesStyle, "slide mode must also offset the track").toMatch(
-      /margin-left:\s*-\d+/i,
-    );
-
-    // Restore.
-    await login(page);
-    await openSliderEditor(page, postId);
-    if (added) {
-      await restoreRows(page, originalJson);
+      await page.goto("/");
+      const slide = await sliderGeometry(page);
+      expect(slide, "the slider is missing from the home page").not.toBeNull();
+      expect(slide!.published, "the template did not publish the setting").toBe(
+        "slide",
+      );
+      expect(
+        slide!.slidesStyle,
+        "animation=slide did not take effect: .slides has no inline geometry, so the vendored fade is still in force",
+      ).toMatch(/width:\s*\d+%/);
+      expect(
+        slide!.slidesStyle,
+        "slide mode must also offset the track",
+      ).toMatch(/margin-left:\s*-\d+/i);
+    } finally {
+      await login(page);
+      await openSliderEditor(page, postId);
+      if (added) {
+        await restoreRows(page, originalJson);
+      }
+      await page
+        .locator("#cg-theme-options")
+        .locator('select[name="cg_meta[slider_animation]"]')
+        .selectOption(original);
+      await save(page);
     }
-    await page
-      .locator("#cg-theme-options")
-      .locator('select[name="cg_meta[slider_animation]"]')
-      .selectOption(original);
-    await save(page);
   });
 
   test("animation=fade is the untouched vendored behaviour", async ({
@@ -547,47 +561,51 @@ test.describe("T018 — slider effect settings", () => {
     await expect(control).toHaveCount(1);
 
     // Same one-slide trap: no instance means no control nav whatever the setting says.
-    const { json: originalJson, added } = await ensureTwoSlides(page);
+    // try/again from before ensureTwoSlides, which may save an added slide of its own.
+    let originalJson = "";
+    let added = false;
+    try {
+      ({ json: originalJson, added } = await ensureTwoSlides(page));
 
-    // The vendored InitHome.js passes controlNav:false, so 0 is the untouched default.
-    await control.selectOption("0");
-    await save(page);
-    await page.goto("/");
-    const off = await sliderGeometry(page);
-    expect(off, "the slider is missing from the home page").not.toBeNull();
-    expect(off!.controlnav, "the template did not publish controlNav").toBe(
-      "0",
-    );
-    expect(
-      off!.controlNavScaffold,
-      "controlNav=0 must build no control nav",
-    ).toBe(0);
+      // The vendored InitHome.js passes controlNav:false, so 0 is the untouched default.
+      await control.selectOption("0");
+      await save(page);
+      await page.goto("/");
+      const off = await sliderGeometry(page);
+      expect(off, "the slider is missing from the home page").not.toBeNull();
+      expect(off!.controlnav, "the template did not publish controlNav").toBe(
+        "0",
+      );
+      expect(
+        off!.controlNavScaffold,
+        "controlNav=0 must build no control nav",
+      ).toBe(0);
 
-    await login(page);
-    await openSliderEditor(page, postId);
-    await page
-      .locator("#cg-theme-options")
-      .locator('select[name="cg_meta[slider_controlnav]"]')
-      .selectOption("1");
-    await save(page);
-    await page.goto("/");
-    const on = await sliderGeometry(page);
-    expect(
-      on!.controlNavScaffold,
-      "controlNav=1 must build a control nav",
-    ).toBeGreaterThan(0);
-
-    // Restore.
-    await login(page);
-    await openSliderEditor(page, postId);
-    if (added) {
-      await restoreRows(page, originalJson);
+      await login(page);
+      await openSliderEditor(page, postId);
+      await page
+        .locator("#cg-theme-options")
+        .locator('select[name="cg_meta[slider_controlnav]"]')
+        .selectOption("1");
+      await save(page);
+      await page.goto("/");
+      const on = await sliderGeometry(page);
+      expect(
+        on!.controlNavScaffold,
+        "controlNav=1 must build a control nav",
+      ).toBeGreaterThan(0);
+    } finally {
+      await login(page);
+      await openSliderEditor(page, postId);
+      if (added) {
+        await restoreRows(page, originalJson);
+      }
+      await page
+        .locator("#cg-theme-options")
+        .locator('select[name="cg_meta[slider_controlnav]"]')
+        .selectOption("0");
+      await save(page);
     }
-    await page
-      .locator("#cg-theme-options")
-      .locator('select[name="cg_meta[slider_controlnav]"]')
-      .selectOption("0");
-    await save(page);
   });
 });
 
