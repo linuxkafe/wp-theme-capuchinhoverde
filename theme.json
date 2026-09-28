@@ -4,24 +4,87 @@
   "settings": {
     "color": {
       "palette": [
-        {"slug":"background","name":"Background","color":"#0a0a0a"},
-        {"slug":"surface","name":"Surface","color":"#171717"},
-        {"slug":"text","name":"Text","color":"#fafafa"},
-        {"slug":"muted","name":"Muted","color":"#737373"},
-        {"slug":"accent","name":"Accent","color":"#22c55e"},
-        {"slug":"destructive","name":"Destructive","color":"#ef4444"}
+        {
+          "slug": "background",
+          "name": "Background (cream)",
+          "color": "#f0ece3"
+        },
+        {
+          "slug": "surface",
+          "name": "Surface (white)",
+          "color": "#ffffff"
+        },
+        {
+          "slug": "surface-alt",
+          "name": "Surface alt",
+          "color": "#f8f2f2"
+        },
+        {
+          "slug": "text",
+          "name": "Text",
+          "color": "#474747"
+        },
+        {
+          "slug": "primary",
+          "name": "Primary (clay)",
+          "color": "#5e3c3d"
+        },
+        {
+          "slug": "secondary",
+          "name": "Secondary (mist)",
+          "color": "#b1dae6"
+        },
+        {
+          "slug": "accent",
+          "name": "Accent (blush)",
+          "color": "#ffbdb8"
+        },
+        {
+          "slug": "muted",
+          "name": "Muted",
+          "color": "#949494"
+        },
+        {
+          "slug": "border",
+          "name": "Border",
+          "color": "#eaeaea"
+        },
+        {
+          "slug": "destructive",
+          "name": "Destructive",
+          "color": "#ef4444"
+        },
+        {
+          "slug": "success",
+          "name": "Success",
+          "color": "#3f8c4a"
+        }
       ]
     },
     "typography": {
       "fontFamilies": [
-        {"name":"Inter","slug":"inter","fontFamily":"Inter, system-ui, sans-serif"}
+        {
+          "name": "Georgia (theme heading)",
+          "slug": "georgia",
+          "fontFamily": "Georgia, \"Times New Roman\", serif"
+        }
       ]
     }
   },
   "styles": {
     "elements": {
-      "h1": {"typography":{"fontSize":"2.5rem","fontWeight":700}},
-      "h2": {"typography":{"fontSize":"2rem","fontWeight":600}}
+      "h1": {
+        "typography": {
+          "fontSize": "2.5rem",
+          "fontWeight": 700
+        }
+      },
+      "h2": {
+        "typography": {
+          "fontSize": "2rem",
+          "fontWeight": 600
+        }
+      }
     }
   }
 }

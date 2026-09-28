@@ -14,20 +14,272 @@ Text Domain: capuchinhoverde
 Tags: food-delivery, restaurant, cafe, block-theme, theme-json, editor-styles, align-wide, custom-logo, post-formats, rtl-language-support, translation-ready, woocommerce
 */
 
+/*
+ * Design tokens — Cafeteria v1.7 identity.
+ *
+ * RESOLVED 2026-09-27 (ticket T006). This block previously declared a dark AES template
+ * palette (#0a0a0a background, #fafafa text, #22c55e green accent) that contradicted every
+ * vendored stylesheet in assets/css/legacy/ and caused a visible defect once already
+ * (commit 72a0b4f, "resolve black page issue"). The decision is that the Cafeteria
+ * identity is canonical.
+ *
+ * Values are taken from the source theme's own defaults, not guessed:
+ *   heading colour  #5e3c3d  aletheme/config.php:165 (h1..h6 'color' std)
+ *   body colour     #474747  aletheme/config.php:201 ('color' std)
+ *   fonts           Georgia  aletheme/config.php:151 (thirdfont std)
+ * The remaining hues are the highest-frequency values in assets/css/legacy/.
+ */
 :root {
-  --cg-bg: #0a0a0a;
-  --cg-surface: #171717;
-  --cg-border: #262626;
-  --cg-text: #fafafa;
-  --cg-muted: #737373;
-  --cg-accent: #22c55e;
+  /* Surfaces */
+  --cg-bg: #f0ece3;          /* cream page background */
+  --cg-surface: #ffffff;
+  --cg-surface-alt: #f8f2f2;
+
+  /* Ink */
+  --cg-text: #474747;
+  --cg-text-strong: #5e3c3d; /* clay — headings, the source's `colormain` */
+  --cg-muted: #949494;
+  --cg-muted-soft: #bababa;
+
+  /* Brand */
+  --cg-primary: #5e3c3d;
+  --cg-secondary: #b1dae6;    /* mist */
+  --cg-accent: #ffbdb8;       /* blush */
+  --cg-border: #eaeaea;
+
+  /* Status */
   --cg-destructive: #ef4444;
+  --cg-success: #3f8c4a;
+
+  /* Type */
+  --cg-font-heading: Georgia, "Times New Roman", serif;
+  --cg-font-body: Georgia, "Times New Roman", serif;
+
+  /* Layout */
+  --cg-content-width: 1200px;
 }
 
-/* Minimal base - legacy CSS handles visual design */
-body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
-a { color: var(--cg-accent); }
+/*
+ * The ported templates rely on two semantic classes that the source theme styled through
+ * partials/css-option.php — a 246-line dynamic <style> generator driven by the Theme
+ * Options panel. That partial was never ported, so BOTH classes were undefined: headings
+ * rendered with no colour and no heading font anywhere in the theme. They are defined here
+ * so the ported markup picks up the identity without the options framework.
+ *
+ * The dynamic half of css-option.php (editor-chosen fonts, sizes and colours) is still
+ * unported. That is ticket T016, and it is why these values are tokens rather than
+ * per-site options: tokens are the floor, options are the ceiling.
+ */
+.colormain {
+  color: var(--cg-text-strong);
+}
+
+.firstfont {
+  font-family: var(--cg-font-heading);
+}
+
+/* Minimal base - legacy CSS handles the visual design */
+body {
+  background-color: var(--cg-bg);
+  color: var(--cg-text);
+  font-family: var(--cg-font-body);
+  line-height: 1.6;
+}
+a { color: var(--cg-primary); }
 .entry-title { font-weight: 700; }
 
+/* Contact form (added in T007) */
+.cg-contact-form p { margin-bottom: 1em; }
+.cg-contact-form label { display: block; font-size: 0.85em; color: var(--cg-text-strong); }
+.cg-contact-form input,
+.cg-contact-form textarea {
+  width: 100%;
+  max-width: 480px;
+  padding: 8px;
+  border: 1px solid var(--cg-border);
+  background: var(--cg-surface);
+  font-family: inherit;
+  font-size: 1em;
+}
+.cg-contact-form button {
+  background: var(--cg-primary);
+  color: var(--cg-surface);
+  border: 0;
+  padding: 12px 32px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.cg-contact-result { padding: 12px 16px; margin-bottom: 1em; }
+.cg-contact-result.is-success { background: #eaf5ec; color: #245c2c; }
+.cg-contact-result.is-error { background: #fbeaea; color: #8a2020; }
+/* Honeypot: must stay in the DOM to attract bots, but never visible. */
+.cg-hp { position: absolute; left: -9999px; }
+
+/* Available to assistive technology, invisible on screen. Cafeteria has no
+   screen-reader-text class of its own; the ported templates need one. */
+.cg-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Gutenberg editor support */
-.editor-styles-wrapper { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.editor-styles-wrapper { font-family: var(--cg-font-body); background-color: var(--cg-bg); }
+.editor-styles-wrapper .colormain { color: var(--cg-text-strong); }
+.editor-styles-wrapper .firstfont { font-family: var(--cg-font-heading); }
+
+/* ------------------------------------------------------------------ shortcodes
+ *
+ * .ale-service already has styles in assets/css/legacy/main.css:2021.
+ *
+ * The other five do NOT — and neither did they in Cafeteria v1.7. The source shipped
+ * ale_team, ale_testimonial, ale_partner, ale_toggle and ale_map with markup that its own
+ * stylesheet never targeted, so they rendered unstyled in the original theme too. Porting
+ * them faithfully would mean shipping four unstyled <div>s.
+ *
+ * What follows is NOT recovered source CSS. It is a minimal layout built from this theme's
+ * existing tokens so the shortcodes are usable, and it is deliberately restrained: swap it
+ * for a real design. See aes/tickets/T013-content-shortcodes.md.
+ */
+.ale-service,
+.ale-team,
+.ale-partner,
+.ale-testimonial {
+  margin: 0 0 2em;
+}
+
+.ale-service .iconbox,
+.ale-team .imagebox,
+.ale-partner .imagebox,
+.ale-testimonial .avatarimage {
+  overflow: hidden;
+  border-radius: 50%;
+  margin: 0 auto 1em;
+  max-width: 200px;
+}
+
+.ale-service .iconbox img,
+.ale-team .imagebox img,
+.ale-partner .imagebox img,
+.ale-testimonial .avatarimage img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+
+.ale-service .servicetitle,
+.ale-team .testititle,
+.ale-partner .partnertitle,
+.ale-testimonial .testititle {
+  font-family: var(--cg-font-heading);
+  color: var(--cg-text-strong);
+  font-size: 1.25em;
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+.ale-service .servicedescription,
+.ale-team .prof,
+.ale-team .teamtextbox,
+.ale-partner .partnertitle,
+.ale-testimonial .righttestimonialpart {
+  text-align: center;
+  color: var(--cg-text);
+}
+
+.ale-team .socialbut {
+  text-align: center;
+  margin-top: 0.75em;
+}
+
+.ale-team .socialbut > div {
+  display: inline-block;
+  margin: 0 0.25em;
+  font-size: 0.85em;
+}
+
+.ale-team .socialbut a,
+.ale-partner .imagebox a {
+  color: var(--cg-primary);
+}
+
+.ale-testimonial {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  align-items: flex-start;
+}
+
+.ale-testimonial .lefttestimonialpart {
+  flex: 0 0 180px;
+  text-align: center;
+}
+
+.ale-testimonial .righttestimonialpart {
+  flex: 1 1 260px;
+}
+
+/* The toggle is a real button in the port (the source emitted a <span> with no handler). */
+.ale-toggle {
+  border-bottom: 1px solid var(--cg-border);
+}
+
+.ale-toggle .ale-toggle-title {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.9em 1em 0.9em 0;
+  font-family: var(--cg-font-heading);
+  font-size: 1.1em;
+  color: var(--cg-text-strong);
+  cursor: pointer;
+}
+
+.ale-toggle .ale-toggle-title::after {
+  content: " +";
+  color: var(--cg-muted);
+}
+
+.ale-toggle.is-open .ale-toggle-title::after {
+  content: " –";
+}
+
+.ale-toggle .ale-toggle-inner {
+  padding: 0 0 1.25em 0;
+}
+
+.cg-map {
+  margin: 0 0 2em;
+  overflow: hidden;
+}
+
+.cg-map iframe {
+  display: block;
+  width: 100%;
+}
+
+.cg-map-unresolved {
+  padding: 0.9em 1em;
+  background: var(--cg-surface-alt);
+  border: 1px dashed var(--cg-muted-soft);
+}
+
+.cg-map-unresolved p {
+  margin: 0 0 0.35em;
+}
+
+.cg-map-address {
+  font-family: monospace;
+  font-size: 0.9em;
+  color: var(--cg-muted);
+}
