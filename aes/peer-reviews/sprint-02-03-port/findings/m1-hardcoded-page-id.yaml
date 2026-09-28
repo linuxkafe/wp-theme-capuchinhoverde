@@ -1,0 +1,13 @@
+type: MINOR
+title: Admin specs hardcode the Home page id 4 and nothing resolves it
+source-persona: PRAGMÁTICO
+evidence: |
+  tests/e2e/meta.spec.ts:17 and tests/e2e/partials.spec.ts:15 use
+  Number(process.env.WP_HOME_PAGE_ID || 4). grep finds WP_HOME_PAGE_ID only in those two
+  lines; the Makefile, playwright.config.ts and scripts/seed.sh never export it, though
+  seed.sh:35-44 resolves the id by slug. The value 4 holds only by accident of this install's
+  page ordering.
+closure-condition: |
+  The suite resolves the Home page id at runtime, or `make test` exports WP_HOME_PAGE_ID, such
+  that no spec contains a hardcoded fallback.
+rubric-criterion: R-01

@@ -1,0 +1,16 @@
+type: BLOCKER
+title: Opening any Slider in the editor is a PHP fatal — the metabox escapes an array
+source-persona: UTILIZADOR
+evidence: |
+  scripts/seed.sh writes _cg_slides as a serialised PHP array. inc/meta.php:463 renders that
+  group through cg_render_meta_field(), whose 'json' branch calls esc_textarea($value) — and
+  esc_textarea() on an array is htmlspecialchars(Array).
+  Moderator reproduction: `wp eval '$v=get_post_meta(15,"_cg_slides",true); esc_textarea($v);'`
+  -> "PHP Fatal error: Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of
+  type string, array given in wp-includes/formatting.php:4720". The admin edit screen shows
+  "There has been a critical error on this website". No E2E test opens a cg_slider screen.
+closure-condition: |
+  `docker compose run --rm -T cli eval '$v=get_post_meta(<slider>,"_cg_slides",true);
+  esc_textarea(is_array($v)?wp_json_encode($v,JSON_PRETTY_PRINT):$v);'` exits 0 AND
+  `npx playwright test` contains a test that opens a cg_slider edit screen and saves it.
+rubric-criterion: U-01

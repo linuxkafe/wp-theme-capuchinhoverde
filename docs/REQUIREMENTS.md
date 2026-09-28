@@ -1,7 +1,10 @@
 # REQUIREMENTS
 
+> As versões mínimas abaixo são verificadas por `make doc-consistency`, que as compara com o
+> cabeçalho de `style.css`. **O código vence:** se divergirem, o defeito está aqui, não no `style.css`.
+
 ## Funcionais
-- Suporte a WordPress 6.0+ e PHP 7.4+
+- Suporte a WordPress 6.0+ e PHP 8.2+ (ver `style.css`: `Requires PHP: 8.2`)
 - Compatível com Gutenberg/block editor
 - Tema responsivo com viewport meta
 - Suporte a menus, logo, custom header/background

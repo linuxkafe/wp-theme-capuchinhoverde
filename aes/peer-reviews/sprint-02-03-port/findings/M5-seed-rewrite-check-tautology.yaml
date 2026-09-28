@@ -1,0 +1,13 @@
+type: MAJOR
+title: seed.sh's rewrite-rule self-verification can never pass and its failure is not fatal
+source-persona: PURISTA
+evidence: |
+  scripts/seed.sh:209 evaluates get_option("rewrite_rules")["cg_menu"]. rewrite_rules is keyed
+  by regex, not post type. Moderator: `wp eval 'var_dump(isset(get_option("rewrite_rules")
+  ["cg_menu"]));'` prints bool(false) while the real rule menu/?$ => index.php?post_type=cg_menu
+  exists and /menu/ serves the archive. Two seed runs exit 0 while printing "cg_menu rule
+  MISSING" — so rubric C-05 is satisfied by a step that cannot fail.
+closure-condition: |
+  `bash scripts/seed.sh` prints "cg_menu rule present" and exits 0, with the lookup keyed on
+  the slug rule (e.g. $r['menu/?$']) rather than the string cg_menu.
+rubric-criterion: C-06

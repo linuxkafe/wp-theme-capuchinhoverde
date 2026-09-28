@@ -1,0 +1,12 @@
+type: MAJOR
+title: style.css header still claims "Zero jQuery dependency in core; legacy assets enqueued conditionally"
+source-persona: CÍNICO
+evidence: |
+  style.css:4 asserts zero jQuery and conditional enqueues. functions.php:53-59 enqueues
+  jquery, modernizr, scrollable, jquery.cookie, isotope, modules and scripts unconditionally
+  on every request; only the Init*.js files are conditional. CLAUDE.md records that this exact
+  claim "was false", but the theme header was never corrected, and make doc-consistency passes.
+closure-condition: |
+  style.css:4 contains neither "Zero jQuery" nor "conditionally", and the header's wording
+  matches functions.php.
+rubric-criterion: E-01

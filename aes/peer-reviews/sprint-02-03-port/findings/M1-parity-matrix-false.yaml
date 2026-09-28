@@ -1,0 +1,13 @@
+type: MAJOR
+title: docs/PARITY.md — the port's declared source of truth — reports the port as delivering nothing
+source-persona: CÍNICO + PURISTA
+evidence: |
+  docs/PARITY.md:10 "E2E: **51 assertions passing**"; :19 "Shortcodes registered | 30 | 0 | 0%";
+  :20 "`partials/` templates | 11 | 0 (dir absent) | 0%"; :82 "The target defines none".
+  Verified by the moderator: 6 shortcodes in inc/shortcodes.php, 11 files in partials/,
+  `npx playwright test --list` -> "Total: 68 tests in 5 files". The rows were updated
+  individually in T007-T013 but the summary tables were never recomputed.
+closure-condition: |
+  Every row of docs/PARITY.md sections 0, 4 and 5 matches the code, and the count stated at
+  line 10 equals the output of `npx playwright test --list | tail -1`.
+rubric-criterion: E-06

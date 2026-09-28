@@ -1,0 +1,14 @@
+type: MAJOR
+title: The form says "Please correct the highlighted fields" but no field is ever highlighted
+source-persona: UTILIZADOR
+evidence: |
+  POST to /contacto/ with an empty name and email=notanemail returns
+  <div class="cg-contact-result is-error" role="status"><p>Please correct the highlighted
+  fields.</p></div> and no aria-invalid, no per-input is-error class, no per-field text.
+  inc/ale-compat.php:185 populates $result['fields'] with name/email/message keys, but
+  template-contact.php:124 and page-home.php:211 print only ['message']; grep for ['fields']
+  matches only the assignment. The validation data is collected and then thrown away.
+closure-condition: |
+  The same POST response contains at least one aria-invalid="true", and
+  partials/contactform.php renders a message for each key of $cg_contact_result['fields'].
+rubric-criterion: U-04

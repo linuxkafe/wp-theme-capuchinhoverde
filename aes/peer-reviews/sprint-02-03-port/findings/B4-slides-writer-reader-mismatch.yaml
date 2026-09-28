@@ -1,0 +1,17 @@
+type: BLOCKER
+title: The Slides field saves a value the slider reader always discards
+source-persona: UTILIZADOR
+evidence: |
+  inc/meta.php:328 cg_sanitize_meta_json() returns wp_json_encode($clean) — a string. That is
+  the only writer of _cg_slides through the UI (saved at inc/meta.php:651). But
+  inc/ale-compat.php:96 does `if (!is_array($slides)) { $slides = []; }`. So the sole
+  user-facing path produces a string and the front end throws it away, and page-home.php:80-83
+  tells the administrator "No slider has been configured yet. Create a Slider and set it as the
+  home slider" after they did exactly that. The suite passes only because seed.sh:90 injects a
+  PHP array through wp-cli, bypassing the metabox entirely.
+closure-condition: |
+  After saving the Slides textarea on the Home Slider post, `wp eval
+  'var_dump(is_array(get_post_meta(<slider>,"_cg_slides",true)));'` prints bool(true) and
+  `curl -s http://localhost:8083/ | grep -c 'class="caption colormain"'` is >= 1, without
+  re-seeding.
+rubric-criterion: U-02

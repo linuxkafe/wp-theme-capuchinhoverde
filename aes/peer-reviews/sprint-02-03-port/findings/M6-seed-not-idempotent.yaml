@@ -1,0 +1,13 @@
+type: MAJOR
+title: scripts/seed.sh is not idempotent — the primary nav gains one item per run
+source-persona: PRAGMÁTICO
+evidence: |
+  seed.sh:197 runs menu item add-post unconditionally on every invocation. Moderator/reviewer
+  observed `wp menu item list` returning 10 rows, all "Início -> /", ids 18,19,34,35,44,59,60,
+  61,64,65 after repeated seeds. No spec asserts nav item count, so 68/68 pass with a header
+  rendering the same link ten times. Rubric C-05 (two consecutive runs both exit 0) is
+  satisfied while the fixture is being corrupted.
+closure-condition: |
+  After two consecutive `bash scripts/seed.sh` runs, `docker compose run --rm -T cli menu item
+  list <menu>` returns exactly one item, and a test asserts the rendered nav item count.
+rubric-criterion: C-05

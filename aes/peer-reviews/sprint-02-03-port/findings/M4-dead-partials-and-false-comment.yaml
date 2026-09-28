@@ -1,0 +1,15 @@
+type: MAJOR
+title: Three ported partials are unreachable and header.php claims a ported partial is missing
+source-persona: CÍNICO + PRAGMÁTICO
+evidence: |
+  partials/archives.php, partials/pagehead.php and partials/pagefooter.php have zero
+  ale_part() references anywhere (moderator: grep count 0 for each). partials/pagehead.php:8-10
+  states "the ported templates include them as a pair" — no template does.
+  header.php:105-106 states "partials/innerheaders.php is not ported yet (T010)" while the
+  file exists and tests/e2e/partials.spec.ts:48-55 asserts its output. docs/PARITY.md:53
+  credits "All 11 ported".
+closure-condition: |
+  Every file in partials/ is reachable via a grep -rn "ale_part(" hit, and header.php contains
+  no "not ported" claim; or the three unreachable partials are deleted and PARITY.md:53 states
+  the reachable count.
+rubric-criterion: D-02

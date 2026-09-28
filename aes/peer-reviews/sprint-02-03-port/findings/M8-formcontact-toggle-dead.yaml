@@ -1,0 +1,14 @@
+type: MAJOR
+title: Customizer "Enable the contact form" controls nothing
+source-persona: UTILIZADOR
+evidence: |
+  inc/customizer.php:48 registers the control. Its only consumers are footer.php:11 and :83
+  (height values). footer.php:19-20 is `if(ale_get_option('formcontact') !== '1'){ }` — an
+  empty branch, the same class of no-op with a misleading name removed in T007 as
+  cg_block_query_posts(). The form is emitted unconditionally by partials/contactform.php via
+  page-home.php:215, gated only on _cg_contactonhome. Unchecking the control leaves the form
+  on the page.
+closure-condition: |
+  With the control unchecked, `curl -s http://localhost:8083/ | grep -c 'class="cg-contact-form"'`
+  prints 0; with it checked, 1.
+rubric-criterion: D-01

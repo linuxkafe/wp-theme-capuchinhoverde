@@ -1,0 +1,14 @@
+type: MINOR
+title: Three Customizer toggles enable AJAX loading with no server handler and no markup to bind to
+source-persona: CÍNICO
+evidence: |
+  inc/customizer.php:49-51 register "Enable AJAX post loading", "…single post loading" and
+  "…comment loading"; functions.php:67-69 passes them to the legacy layer, which POSTs
+  action=aletheme_load_post (assets/js/legacy/scripts.js:149). grep for wp_ajax across the
+  theme returns nothing, and partials/posthead.php emits <div class="post-…">, never
+  "article.post a.toggle". A live probe with ajax_posts=1 recorded 0 toggle elements and 0
+  admin-ajax requests. docs/PARITY.md never mentions AJAX.
+closure-condition: |
+  Each toggle is either removed or a wp_ajax_aletheme_load_post handler exists with matching
+  markup, and docs/PARITY.md lists the three as OK or GAP.
+rubric-criterion: E-01

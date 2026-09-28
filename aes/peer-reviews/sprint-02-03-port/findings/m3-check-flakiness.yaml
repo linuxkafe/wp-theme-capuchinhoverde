@@ -1,0 +1,14 @@
+type: MINOR
+title: make check is not deterministic — an admin test failed 2 of 4 runs against the same seed
+source-persona: CÍNICO
+evidence: |
+  The reviewer observed "1 failed … 67 passed" then EXIT=2 at tests/e2e/meta.spec.ts:155
+  ("expected 0, received 1" — the page was read before the save landed), and 3/3 passes after
+  re-seeding. Moderator status: NÃO-VERIFICÁVEL — I did not reproduce it on demand, so this
+  rests on the reviewer's observation. The suspected cause is real regardless: save() in
+  tests/e2e/meta.spec.ts waits on a fixed 500 ms + toBeEnabled + 1000 ms rather than on the
+  save response.
+closure-condition: |
+  `npx playwright test meta` passes 5 consecutive runs with no re-seed, and save() waits on the
+  editor save response instead of fixed sleeps.
+rubric-criterion: C-01

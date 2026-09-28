@@ -1,0 +1,14 @@
+type: MAJOR
+title: The custompagecss E2E test cannot fail — the payload is destroyed before the render allowlist sees it
+source-persona: PURISTA
+evidence: |
+  tests/e2e/meta.spec.ts:206 fills
+  "background:url(javascript:alert(1));} body{display:none". inc/meta.php:302
+  cg_sanitize_meta_css() returns '' for any value containing url(, so nothing is stored and
+  header.php:22-30 (the render-time allowlist) never executes. Deleting header.php:22-30
+  entirely leaves this test green. The only input the allowlist can actually accept
+  (e.g. "color:red") is never asserted anywhere.
+closure-condition: |
+  tests/e2e/meta.spec.ts asserts that a value surviving cg_sanitize_meta_css appears in
+  body[style], and removing header.php:22-30 makes `npx playwright test meta` fail.
+rubric-criterion: S-04

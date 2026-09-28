@@ -1,0 +1,13 @@
+type: BLOCKER
+title: Ported colour-scheme selector is dead — vendored scripts.js uses jQuery .live(), removed in jQuery 3
+source-persona: PURISTA
+evidence: |
+  assets/js/legacy/scripts.js:24,28,33 call $(...).live('click',…). WordPress serves
+  jquery/jquery.js?ver=3.7.1, in which .live does not exist (`grep -cE "live:|\.live=function"`
+  on the served file returns 0). Every click on .colorselector .openbut and .icbox binds
+  nothing, so the skinselector feature T010b was credited with delivering cannot function.
+  Reproduced by the reviewer as a pageerror "$(...).live is not a function".
+closure-condition: |
+  With skinselector=1, a Playwright run records no pageerror and clicking .colorselector .icbox
+  appends a <link id="schemeN-css"> to <head>.
+rubric-criterion: C-01

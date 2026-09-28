@@ -1,0 +1,17 @@
+type: MAJOR
+title: Three divergent map allowlists; two of them are documented as defined once
+source-persona: PURISTA + PRAGMÁTICO + UTILIZADOR
+evidence: |
+  inc/template-tags.php:58-63 states the embed is "defined once, in cg_map_embed_url()" and
+  "shared by template-contact.php and footer.php". template-contact.php:107-117 instead
+  applies its own inline regex (^|\.)google\.[a-z.]+$…, which accepts google.evil.com, and
+  never calls cg_map_embed_url() or cg_render_map_embed() (grep count 0). Divergences:
+  contact accepts maps.google.pt and refuses lat,lng; the shared path does the opposite.
+  footer.php:48 reads post meta rather than a site-wide option, so the map renders on / and
+  is absent on /sobre/. The contactmap field label also promises "URL or coordinates" while
+  the contact page accepts only a URL.
+closure-condition: |
+  template-contact.php and footer.php both call cg_render_map_embed(); a single allowlist
+  implementation exists; one test asserts identical accept/refuse behaviour for the same
+  input through both the shortcode and the contact page; google.evil.com is REFUSED.
+rubric-criterion: S-06

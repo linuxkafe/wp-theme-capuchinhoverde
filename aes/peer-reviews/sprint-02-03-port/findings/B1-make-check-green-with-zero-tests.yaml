@@ -1,0 +1,14 @@
+type: BLOCKER
+title: make check exits 0 and prints "check: OK" when zero of 68 E2E tests execute
+source-persona: PRAGMÁTICO
+evidence: |
+  `make check WP_URL=http://localhost:9999` -> "test: SKIP (no WordPress answering at
+  http://localhost:9999)" then "check: OK — lint, format, doc-consistency, key-coverage, test",
+  exit=0. Verified by the moderator. Makefile:52-64. The whole suite lives in the `test-e2e`
+  target, so an unreachable WordPress silently removes 100% of the coverage while the gate
+  still reports success. CLAUDE.md:63 ("Do not describe a skip as a passing test run") is
+  contradicted by the tool the project ships.
+closure-condition: |
+  `make check WP_URL=http://localhost:9999` exits non-zero, or the recipe prints an explicit
+  "DEGRADED — 0 tests executed" and `check: OK` is not printed.
+rubric-criterion: C-02
