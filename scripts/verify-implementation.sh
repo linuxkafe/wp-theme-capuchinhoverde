@@ -58,8 +58,23 @@ trap 'rm -f "$CRITERIA_FILE"' EXIT
 
 while IFS= read -r line; do
   case "$line" in
-    *"Acceptance Criteria"*) IN_SECTION=1; continue ;;
-    "##"*) [ "$IN_SECTION" = "1" ] && break ;;
+    "## "*)
+      # The heading match is case-insensitive. It used to be a literal
+      # *"Acceptance Criteria"*, so a ticket writing "## Acceptance criteria"
+      # silently matched nothing, produced zero criteria, and still reported
+      # "Verification gate passed" — a gate that verified nothing and claimed
+      # success. Same defect class as T015/B1.
+      lower=$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')
+      case "$lower" in
+        *"acceptance criteria"*)
+          [ "$IN_SECTION" = "1" ] && break
+          IN_SECTION=1
+          continue
+          ;;
+      esac
+      [ "$IN_SECTION" = "1" ] && break
+      continue
+      ;;
   esac
   if [ "$IN_SECTION" = "1" ]; then
     case "$line" in
@@ -69,12 +84,14 @@ while IFS= read -r line; do
 done < "$NAME_FILE"
 
 if [ ! -s "$CRITERIA_FILE" ]; then
-  skip "No acceptance criteria found in $(basename "$NAME_FILE")"
+  fail "No acceptance criteria found in $(basename "$NAME_FILE")"
   echo ""
+  echo "  Add a '## Acceptance criteria' section with '- [ ] ' items."
+  echo "  A gate that checks nothing must not pass (see T015/B1)."
   echo "────────────────────────────────────────────────────"
-  echo "  Result: 0 passed, 0 failed, $COUNT total"
+  echo "  Result: 0 passed, 1 failed, $COUNT total"
   echo "────────────────────────────────────────────────────"
-  exit 0
+  exit 1
 fi
 
 # ── Verify each criterion ──────────────────────────────────────────────────────
